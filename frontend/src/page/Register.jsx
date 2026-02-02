@@ -1,4 +1,4 @@
-import styles from '../styles/Register.module.css';
+import styles from '../styles/Login.module.css';
 import { useDispatch } from 'react-redux'
 import { RegisterUser } from '../redux/operation.js';
 
