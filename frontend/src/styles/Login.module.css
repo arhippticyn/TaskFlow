@@ -13,4 +13,12 @@
 .btn {
     height: 60px;
     width: 410px;
+    font-size: 20px;
+}
+
+.LogInList {
+    display: flex;
+    list-style: none;
+    column-gap: 20px;
+    padding: 0;
 }

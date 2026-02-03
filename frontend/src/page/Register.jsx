@@ -1,20 +1,22 @@
-import styles from '../styles/Login.module.css';
-import { useDispatch } from 'react-redux'
+import styles from '../styles/Register.module.css';
+import { useDispatch } from 'react-redux';
 import { RegisterUser } from '../redux/operation.js';
+import GoogleLogin from '../components/GoogleLogin.jsx';
+import GithubLogin from '../components/GithubLogin.jsx';
 
 const Register = () => {
-    const dispatch = useDispatch()
-    const handleRegister = (e) => {
-        e.preventDefault()
-        const form = e.target
-        const username = form.elements.username.value
-        const email = form.elements.email.value;
-        const password = form.elements.password.value;
-        dispatch(
-          RegisterUser({ username: username, email: email, password: password })
-        );
-        form.reset()
-    }
+  const dispatch = useDispatch();
+  const handleRegister = (e) => {
+    e.preventDefault();
+    const form = e.target;
+    const username = form.elements.username.value;
+    const email = form.elements.email.value;
+    const password = form.elements.password.value;
+    dispatch(
+      RegisterUser({ username: username, email: email, password: password })
+    );
+    form.reset();
+  };
   return (
     <div>
       <h1 className={styles.title}>Register</h1>
@@ -35,6 +37,15 @@ const Register = () => {
 
         <button className={styles.btn}>Sign Up</button>
       </form>
+
+      <ul className={styles.LogInList}>
+        <li className={styles.LogInItem}>
+          <GoogleLogin />
+        </li>
+        <li className={styles.LogInItem}>
+          <GithubLogin />
+        </li>
+      </ul>
     </div>
   );
 };

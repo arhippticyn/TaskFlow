@@ -32,8 +32,27 @@ export const LoginUser = createAsyncThunk(
             headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
         })
 
+        SetAuthHeader(response.data.access_token)
+
         return response.data
     } catch (error) {
         return rejectwithvalue(error.message)
     }
+})
+
+
+export const GetUser = createAsyncThunk('auth/GetUser', async (_, {rejectwithvalue, getState}) => {
+  try {
+    const token = getState().auth.token
+
+    if (!token) return rejectwithvalue('Error with token')
+
+    SetAuthHeader(token)
+
+    const response = await axios.get('/users/me')
+
+    return response.data
+  } catch (error) {
+    return rejectwithvalue(error.message)
+  }
 })

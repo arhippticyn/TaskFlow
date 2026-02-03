@@ -1,6 +1,8 @@
 import { useDispatch } from 'react-redux';
 import styles from '../styles/Login.module.css';
 import { LoginUser } from '../redux/operation';
+import GoogleLogin from '../components/GoogleLogin.jsx';
+import GithubLogin from '../components/GithubLogin.jsx';
 
 const Login = () => {
   const dispatch = useDispatch()
@@ -28,6 +30,15 @@ const Login = () => {
 
         <button className={styles.btn}>Log In</button>
       </form>
+
+      <ul className={styles.LogInList}>
+        <li className={styles.LogInItem}>
+          <GoogleLogin />
+        </li>
+        <li className={styles.LogInItem}>
+          <GithubLogin />
+        </li>
+      </ul>
     </div>
   );
 };

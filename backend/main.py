@@ -1,4 +1,5 @@
 from fastapi import FastAPI, Depends, status, HTTPException, Request
+from fastapi.responses import RedirectResponse
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from fastapi.middleware.cors import CORSMiddleware
 from starlette.middleware.sessions import SessionMiddleware
@@ -11,6 +12,7 @@ from passlib.context import CryptContext
 from datetime import datetime, timezone, timedelta
 from authlib.integrations.starlette_client import OAuth
 from dotenv import load_dotenv
+from urllib.parse import urlencode
 import os
 
 load_dotenv()
@@ -174,7 +176,12 @@ async def google_callback(request: Request, db: Session = Depends(get_db)):
 
     access_token = jwt.encode(payload, SECRET_KEY, algorithm=ALGORITM)
 
-    return {'access_token': access_token, 'type': 'bearer'}
+    params = urlencode({'token': access_token})
+
+    redirect_url = f'http://localhost:5173/profile?{params}'
+
+
+    return RedirectResponse(url=redirect_url)
 
 @app.get('/auth/github/callback')
 async def github_callback(request: Request, db: Session = Depends(get_db)):
@@ -205,4 +212,9 @@ async def github_callback(request: Request, db: Session = Depends(get_db)):
 
     access_token = jwt.encode(payload, SECRET_KEY, algorithm=ALGORITM)
 
-    return {'access_token': access_token, 'type': 'bearer'}
+    params = urlencode({'token': access_token})
+
+    redirect_url = f'http://localhost:5173/profile?{params}'
+
+
+    return RedirectResponse(url=redirect_url)
