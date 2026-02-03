@@ -16,3 +16,18 @@ class UserResponse(BaseModel):
 
     class Config:
         orm_mode = True
+
+class TaskCreate(BaseModel):
+    title: str
+    description: str
+
+
+class TaskResponse(BaseModel):
+    id: int
+    title: str
+    description: str
+    owner_id: int
+
+    class Config:
+        orm_mode = True
+

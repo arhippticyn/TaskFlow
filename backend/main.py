@@ -3,8 +3,8 @@ from fastapi.responses import RedirectResponse
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from fastapi.middleware.cors import CORSMiddleware
 from starlette.middleware.sessions import SessionMiddleware
-from models import LoginUser, UserResponse, RegisterUser
-from db import User, get_db
+from models import LoginUser, UserResponse, RegisterUser, TaskCreate, TaskResponse
+from db import User, get_db, Task
 from sqlalchemy.orm import Session
 import jwt
 from jwt.exceptions import InvalidTokenError
@@ -218,3 +218,43 @@ async def github_callback(request: Request, db: Session = Depends(get_db)):
 
 
     return RedirectResponse(url=redirect_url)
+
+@app.post('/tasks', response_model=TaskResponse)
+def add_task(task: TaskCreate, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
+    task_db = Task(title=task.title, description=task.description, owner_id=current_user.id)
+    db.add(task_db)
+    db.commit()
+    db.refresh(task_db)
+
+    return task_db 
+
+@app.get('/task', response_model=list[TaskResponse])
+def read_tasks(db: Session = Depends(get_db)):
+    return db.query(Task).all()
+
+@app.get('/task/{id}', response_model=TaskResponse)
+def get_current_task(id: int, db: Session = Depends(get_db)):
+    return db.query(Task).filter(Task.id == id).first()
+
+@app.delete('/delete-task/{id}', response_model=TaskResponse)
+def delete_task(id: int, db: Session = Depends(get_db)):
+    del_task = db.query(Task).filter(Task.id == id).first()
+
+    db.delete(del_task)
+    db.commit()
+
+    return del_task
+
+@app.put('/taskput/{id}', response_model=TaskResponse)
+def task_put(id: int, new_title: str | None = None, new_description: str | None = None, db: Session = Depends(get_db)):
+    task = db.query(Task).filter(Task.id == id).first()
+
+    if new_title:
+        task.title = new_title
+        db.commit()
+
+    if new_description:
+        task.description = new_description
+        db.commit()
+
+    return task
