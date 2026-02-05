@@ -22,37 +22,90 @@ export const RegisterUser = createAsyncThunk(
 
 export const LoginUser = createAsyncThunk(
   'auth/LoginUser',
-  async(creditials, { rejectwithvalue }) => {
+  async (creditials, { rejectwithvalue }) => {
     try {
-        const data = new URLSearchParams()
-        data.append('username', creditials.username)
-        data.append('password', creditials.password)
+      const data = new URLSearchParams();
+      data.append('username', creditials.username);
+      data.append('password', creditials.password);
 
-        const response = await axios.post('/auth/login', data, {
-            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-        })
+      const response = await axios.post('/auth/login', data, {
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      });
 
-        SetAuthHeader(response.data.access_token)
+      SetAuthHeader(response.data.access_token);
 
-        return response.data
+      return response.data;
     } catch (error) {
-        return rejectwithvalue(error.message)
+      return rejectwithvalue(error.message);
     }
-})
+  }
+);
+
+export const GetUser = createAsyncThunk(
+  'auth/GetUser',
+  async (_, { rejectwithvalue, getState }) => {
+    try {
+      const token = getState().auth.token;
+
+      if (!token) return rejectwithvalue('Error with token');
+
+      SetAuthHeader(token);
+
+      const response = await axios.get('/users/me');
+
+      return response.data;
+    } catch (error) {
+      return rejectwithvalue(error.message);
+    }
+  }
+);
+
+export const AddTasks = createAsyncThunk(
+  'tasks/AddTasks',
+  async (task_new, { rejectwithvalue }) => {
+    try {
+      const response = await axios.post('/tasks', task_new);
+
+      return response.data;
+    } catch (error) {
+      return rejectwithvalue(error.message);
+    }
+  }
+);
+
+export const GetTasks = createAsyncThunk(
+  'tasks/GetTasks',
+  async (_, { rejectwithvalue }) => {
+    try {
+      const response = await axios.get('/task');
+
+      return response.data;
+    } catch (error) {
+      return rejectwithvalue(error.message);
+    }
+  }
+);
 
 
-export const GetUser = createAsyncThunk('auth/GetUser', async (_, {rejectwithvalue, getState}) => {
+export const PutTask = createAsyncThunk('tasks/PutTask', async ({id, title_new, description_new}, {rejectwithvalue}) => {
   try {
-    const token = getState().auth.token
-
-    if (!token) return rejectwithvalue('Error with token')
-
-    SetAuthHeader(token)
-
-    const response = await axios.get('/users/me')
+    const response = await axios.put(`/taskput/${id}`, {
+      title_new,
+      description_new
+    })
 
     return response.data
   } catch (error) {
     return rejectwithvalue(error.message)
   }
-})
+});
+
+export const DeleteTask = createAsyncThunk('tasks/DeleteTask', async ({id}, {rejectwithvalue}) => {
+  try {
+    const response = await axios.delete(`deletetask/${id}`);
+
+    return response.data
+  } catch(error) {
+    return rejectwithvalue(error.message)
+  }
+});

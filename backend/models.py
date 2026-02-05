@@ -21,6 +21,10 @@ class TaskCreate(BaseModel):
     title: str
     description: str
 
+class TaskUpdate(BaseModel):
+    title_new: str | None = None
+    description_new: str | None = None
+
 
 class TaskResponse(BaseModel):
     id: int

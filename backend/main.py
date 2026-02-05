@@ -3,7 +3,7 @@ from fastapi.responses import RedirectResponse
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from fastapi.middleware.cors import CORSMiddleware
 from starlette.middleware.sessions import SessionMiddleware
-from models import LoginUser, UserResponse, RegisterUser, TaskCreate, TaskResponse
+from models import LoginUser, UserResponse, RegisterUser, TaskCreate, TaskResponse, TaskUpdate
 from db import User, get_db, Task
 from sqlalchemy.orm import Session
 import jwt
@@ -229,32 +229,34 @@ def add_task(task: TaskCreate, db: Session = Depends(get_db), current_user: User
     return task_db 
 
 @app.get('/task', response_model=list[TaskResponse])
-def read_tasks(db: Session = Depends(get_db)):
-    return db.query(Task).all()
+def read_tasks(db: Session = Depends(get_db), user: User = Depends(get_current_user)):
+    return db.query(Task).filter(Task.owner_id == user.id).all()
 
 @app.get('/task/{id}', response_model=TaskResponse)
 def get_current_task(id: int, db: Session = Depends(get_db)):
     return db.query(Task).filter(Task.id == id).first()
 
-@app.delete('/delete-task/{id}', response_model=TaskResponse)
+@app.delete('/deletetask/{id}', response_model=TaskResponse)
 def delete_task(id: int, db: Session = Depends(get_db)):
     del_task = db.query(Task).filter(Task.id == id).first()
 
     db.delete(del_task)
     db.commit()
 
-    return del_task
+    return id
 
 @app.put('/taskput/{id}', response_model=TaskResponse)
-def task_put(id: int, new_title: str | None = None, new_description: str | None = None, db: Session = Depends(get_db)):
-    task = db.query(Task).filter(Task.id == id).first()
+def task_put(id: int, task: TaskUpdate, db: Session = Depends(get_db)):
+    task_db = db.query(Task).filter(Task.id == id).first()
 
-    if new_title:
-        task.title = new_title
-        db.commit()
+    if task.title_new:
+        task_db.title = task.title_new
+        
 
-    if new_description:
-        task.description = new_description
-        db.commit()
+    if task.description_new:
+        task_db.description = task.description_new
+        
+    db.commit()
+    db.refresh(task_db)
 
-    return task
+    return task_db
